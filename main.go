@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,7 @@ var books = []book{
 func main() {
 	router := gin.Default()
 	router.GET("/books", getBooks)
+	router.GET("/books/:name", getBookByName)
 	router.POST("/books", postBooks)
 
 	router.Run("localhost:8080")
@@ -47,4 +49,22 @@ func postBooks(c *gin.Context) {
 	// Add the new book to the slice
 	books = append(books, newBook)
 	c.IndentedJSON(http.StatusCreated, newBook)
+}
+
+// getBookByName locates the book whose name value matches the given name
+// parameter sent by the client, then returns that book as a response
+func getBookByName(c *gin.Context) {
+	// name := c.Param("name")
+	name := c.Param("name")
+	fmt.Println("id is", name)
+
+	// Iterate over the list of books, looking for
+	// a book whose name value matches the param
+	for _, b := range books {
+		if b.Name == name {
+			c.IndentedJSON(http.StatusOK, b)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "book not found"})
 }
